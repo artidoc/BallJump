@@ -50,13 +50,14 @@ private:
 	int32 Speed{0};
 	int32 Score{ 0 };
 	FTimerHandle TimerHandle;
-	float TimerRate = 5.0f;
+	float TimerRate = 3.0f;
 	
 	void ScreenSize();
 	void CheckAndSpawnBlock();
 	void CheckAndSpawnCloud();
 	void SpawnActors(TSubclassOf<ACloud> ActorSpawn, FVector& Location, FRotator& Rotation);
 	void SpeedCalc();
+	void ScoreCalc();
 	int32 SpeedClamp(int32 Speedtmp);
 	void OnTimerFired();
 };

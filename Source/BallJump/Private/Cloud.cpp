@@ -29,7 +29,10 @@ void ACloud::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+    //cloud movement from right to left
 	HandleMovement(DeltaTime);
+    
+    //check if cloud is going out from the screen and then delete it
     CheckToDestroy();
 }
 
@@ -38,11 +41,9 @@ void ACloud::HandleMovement(double DeltaTime)
     FVector CurrentLocation = GetActorLocation();
     if (GetWorld())
     {
-        CurrentLocation.X = CurrentLocation.X - 20 * DeltaTime * (static_cast<float>(GameInst->GetSpeed())/2.0f);
-        //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 9999.f, FColor::Red, FString::Printf(TEXT("CurrentLocation.X=%f"), CurrentLocation.X/1531));
+        CurrentLocation.X = CurrentLocation.X - 20 * DeltaTime * (static_cast<float>(GameInst->GetMySpeed())/2.0f);
         SetActorLocation(CurrentLocation);
 
-        //UE_LOG(LogTemp, Warning, TEXT("CurrentLocation.X=%.2f"), CurrentLocation.X);
 
     }
 }
@@ -50,10 +51,13 @@ void ACloud::HandleMovement(double DeltaTime)
 void ACloud::CheckToDestroy()
 {
     FVector CurrentLocation = GetActorLocation();
+    
+    /// <Get screen height and width>
     UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
     FIntPoint ViewSize = Viewport->Viewport->GetSizeXY();
-    //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("X = %i , Y = %i, BlockView=%f, Sum=%f"),ViewSize.X, ViewSize.Y, ((ActorScale.X*50)/2), ((ViewSize.X + ((ActorScale.X * 50) / 2)))));
-
+    /// </Get screen height and width>
+    
+    
     if (CurrentLocation.X < -(ViewSize.X / 2 + 150 + 100))
     {
         Destroy();

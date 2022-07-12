@@ -21,6 +21,12 @@ void AMainLogic::BeginPlay()
 
 	GameInst = Cast<UMyGameInstance>(GetGameInstance());
 
+	if (GameInst)
+	{
+		GameInst->SetIsDead(false);
+		GameInst->SetSpeed(0);
+	}
+
 	if (GetWorld())
 	{
 		//spawn 3 new blocks - up, down and cloud
@@ -30,7 +36,7 @@ void AMainLogic::BeginPlay()
 		if (UGameplayStatics::GetCurrentLevelName(this, true) == "GameMap")
 		{
 			FVector LocationDown = FVector(-450.0, 0.0, -250.0);
-			FVector LocationUp = FVector(250.0, 0.0, 250.0);
+			FVector LocationUp = FVector(350.0, 0.0, 250.0);
 			FTransform DownBlockTransform;
 			DownBlockTransform.SetRotation(FQuat(Rotation));
 			DownBlockTransform.SetScale3D(FVector(10.0f, 1.0f, 0.5f));
@@ -42,7 +48,7 @@ void AMainLogic::BeginPlay()
 
 			DownBlock = GetWorld()->SpawnActor(BlockSpawn, &DownBlockTransform);
 			UpBlock = GetWorld()->SpawnActor(BlockSpawn, &UpBlockTransform);
-			GameInst->SetSpeed(0);
+				
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainLogic::OnTimerFired, TimerRate, true);
 		}
 		FVector CloudLocation = FVector(0.0, 0.0, 340.0);
@@ -63,15 +69,19 @@ void AMainLogic::Tick(float DeltaTime)
 		int32 TimeSec = static_cast<int32>(GetWorld()->GetTimeSeconds());
 		if (TimeSec > 0 && TimeSec <= 5)
 			SpeedCalc();
+		ScoreCalc();
 	}
 	else
-		GameInst->SetSpeed(7);
+		if(GameInst)
+			GameInst->SetSpeed(7);
 }
 
 void AMainLogic::ScreenSize()
 {
 	UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
 	ViewSize = Viewport->Viewport->GetSizeXY();
+	if(GameInst)
+		GameInst->SetViewSize(ViewSize);
 
 }
 
@@ -153,12 +163,7 @@ void AMainLogic::CheckAndSpawnBlock()
 	else
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("DownBlock and UpBlock are nullptr")));
 }
-/*
-void AMainLogic::SpawnActors(TSubclassOf<ABlock> ActorSpawn, FTransform& TransformDown, FTransform& TransformUp)
-{
-	DownBlock = GetWorld()->SpawnActor(ActorSpawn, &TransformDown);
-	//UpBlock = GetWorld()->SpawnActor(ActorSpawn, &LocationUp, &Rotation);
-}*/
+
 void AMainLogic::SpawnActors(TSubclassOf<ACloud> ActorSpawn, FVector& Location, FRotator& Rotation)
 {
 	CloudBP = GetWorld()->SpawnActor(ActorSpawn, &Location, &Rotation);
@@ -170,9 +175,20 @@ void AMainLogic::SpeedCalc()
 
 	Speed++;
 	Speed = SpeedClamp(Speed);
-	//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Speed=%i"), Speed));
-	if (GameInst) 
+
+	if (GameInst)
 		GameInst->SetSpeed(Speed);
+	else
+		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("GameInst is nullptr")));
+}
+
+void AMainLogic::ScoreCalc()
+{
+	Score++;
+	Score = SpeedClamp(Score);
+
+	if (GameInst)
+		GameInst->SetScore(Score);
 	else
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("GameInst is nullptr")));
 }
@@ -186,7 +202,7 @@ int32 AMainLogic::SpeedClamp(int32 Speedtmp)
 void AMainLogic::OnTimerFired()
 {
 	Speed++;
-	//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Speed=%i"), Speed));
+
 	if (GameInst)
 		GameInst->SetSpeed(Speed);
 	else

@@ -32,7 +32,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere)
 		USphereComponent* BallMesh;
-	//UStaticMeshComponent* BallMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 		float Speed = 5.0f;
@@ -40,16 +39,16 @@ public:
 private:
 	FVector BallLocation;
 	FRotator CurrentRotation;
-	//float ChangeDirection;
 	FVector Gravity;
 	UMyGameInstance* GameInst{ nullptr };
 	bool CanJump{ false };
+	bool IsDown{ true };
 
 	
 	//void Movement();
 	void Pitch();
-	void ChangeFloor(float Amount);
-	//void ZMovement();
+	void ChangeFloor();
+	void CheckDead();
 	
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp

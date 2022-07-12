@@ -41,28 +41,9 @@ void ABallPawn::Tick(float DeltaTime)
 	if(prim)
 		prim->SetPhysicsLinearVelocity(Gravity, true);
 	
-	//Movement();
-	//ZMovement();
-	//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("MoveUp = %i , MoveDown = %i"), MoveUp, MoveDown));
-	
+	CheckDead();
 }
 
-/*
-void ABallPawn::Movement()
-{
-	if (Speed != 0)
-	{
-		if (GetWorld())
-		{
-			if (!CurrentRotation.IsZero())
-			{
-				FRotator newRotation = CurrentRotation;
-				FQuat quatRotation = FQuat(newRotation);
-				AddActorLocalRotation(quatRotation, false, 0, ETeleportType::None);
-			}
-		}
-	}
-}*/
 
 void ABallPawn::Pitch() {
 
@@ -73,21 +54,38 @@ void ABallPawn::Pitch() {
 		UE_LOG(LogTemp, Warning, TEXT("Pitch = %f"), GetActorRotation().Pitch);
 	}
 }
-void ABallPawn::ChangeFloor(float Amount)
+void ABallPawn::ChangeFloor()
 {
 	if (CanJump)
 	{
-		if (Amount == -1)
+		if (IsDown)
+		{
+			Gravity = FVector(0.0, 0.0, 5.0); 
+			CanJump = false;
+			IsDown = false;
+		}
+		else
 		{
 			Gravity = FVector(0.0, 0.0, 0.0); 
 			CanJump = false;
-		}
-		if (Amount == 1)
-		{
-			Gravity = FVector(0.0, 0.0, 50.0); 
-			CanJump = false;
+			IsDown = true;
 		}
 	}
+}
+
+void ABallPawn::CheckDead()
+{
+	if (!GameInst)
+		return;
+	FVector CurrentLocation = GetActorLocation();
+	UE_LOG(LogTemp, Warning, TEXT("ViewSize.X=%f, ViewSize.Y=%f"), GameInst->GetMyViewSize().X, GameInst->GetMyViewSize().Y);
+	if (CurrentLocation.Z < -255 || CurrentLocation.Z > 255)
+	{
+		GameInst->SetIsDead(true);
+		if (GameInst->GetMyScore() > GameInst->GetMyHighScore())
+			GameInst->SetHighScore(GameInst->GetMyScore());
+	}
+
 }
 
 void ABallPawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -98,47 +96,12 @@ void ABallPawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPr
 	}
 }
 
-/*void ABallPawn::ZMovement()
-{
-
-	FVector CurrentLocation = GetActorLocation();
-	if (MoveUp)
-	{
-		if (CurrentLocation.Z <124.0f)
-		{
-			CurrentLocation.Z = BallLocation.Z + 1;
-			SetActorLocation(CurrentLocation);
-
-		}
-		else {
-			BallLocation = GetActorLocation();
-		}
-	}
-	if (MoveDown)
-	{
-			
-		//if (IsDown)
-		//{
-		if (CurrentLocation.Z >0.0f)
-		{
-			CurrentLocation.Z = BallLocation.Z - 1;
-			SetActorLocation(CurrentLocation);
-
-		}
-		else {
-			BallLocation = GetActorLocation();
-		}
-	}
-		
-}
-*/
-
 // Called to bind functionality to input
 void ABallPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	//PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABallPawn::ChangeFloor);
-	PlayerInputComponent->BindAxis("Jump1", this, &ABallPawn::ChangeFloor);
+	
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ABallPawn::ChangeFloor);
+	//PlayerInputComponent->BindAxis("Jump1", this, &ABallPawn::ChangeFloor);
 }
 

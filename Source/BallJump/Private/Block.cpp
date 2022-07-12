@@ -36,13 +36,11 @@ void ABlock::HandleMovement(double DeltaTime)
         if (GetWorld())
         {
             if(GameInst)
-                CurrentLocation.X = CurrentLocation.X - 20 * DeltaTime * GameInst->GetSpeed();
+                CurrentLocation.X = CurrentLocation.X - 20 * DeltaTime * GameInst->GetMySpeed();
             else
                 CurrentLocation.X = CurrentLocation.X - 20 * DeltaTime * 5;
-            //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 9999.f, FColor::Red, FString::Printf(TEXT("Speed=%i"), ));
             SetActorLocation(CurrentLocation);
 
-            //UE_LOG(LogTemp, Warning, TEXT("CurrentLocation.X=%.2f"), CurrentLocation.X);
 
         }
 }
@@ -53,8 +51,7 @@ void ABlock::CheckToDestroy()
     FVector CurrentLocation = GetActorLocation();
     UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
     FIntPoint ViewSize = Viewport->Viewport->GetSizeXY();
-    //if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Black, FString::Printf(TEXT("X = %i , Y = %i, BlockView=%f, Sum=%f"),ViewSize.X, ViewSize.Y, ((ActorScale.X*50)/2), ((ViewSize.X + ((ActorScale.X * 50) / 2)))));
-
+    
     if (CurrentLocation.X<-((ViewSize.X/2 + ((ActorScale.X * 50)/2))+350))
     {
         Destroy();
