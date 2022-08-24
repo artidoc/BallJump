@@ -41,6 +41,7 @@ private:
 	FRotator CurrentRotation;
 	FVector Gravity;
 	UMyGameInstance* GameInst{ nullptr };
+	USphereComponent* prim{ nullptr };
 	bool CanJump{ false };
 	bool IsDown{ true };
 

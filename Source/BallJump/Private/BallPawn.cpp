@@ -1,8 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "BallPawn.h"
 #include "Components/SphereComponent.h"
 #include "Components/PrimitiveComponent.h"
-#include "BallPawn.h"
+
 
 // Sets default values
 ABallPawn::ABallPawn()
@@ -17,17 +18,17 @@ ABallPawn::ABallPawn()
 	BallMesh->SetSimulatePhysics(true);
 	BallMesh->SetNotifyRigidBodyCollision(true);
 	BallMesh->BodyInstance.SetCollisionProfileName("BlockAllDynamic");
-	BallMesh->OnComponentHit.AddDynamic(this, &ABallPawn::OnHit);
+	
 }
 
 // Called when the game starts or when spawned
 void ABallPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	Pitch();
+	//Pitch();
 	Gravity = FVector(0.0, 0.0, 0.0);
 	GameInst = Cast<UMyGameInstance>(GetGameInstance());
-
+	BallMesh->OnComponentHit.AddDynamic(this, &ABallPawn::OnHit);
 
 
 }
@@ -37,9 +38,15 @@ void ABallPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	USphereComponent* prim = Cast<USphereComponent>(this->GetRootComponent());
-	if(prim)
+	prim = Cast<USphereComponent>(this->GetRootComponent());
+	
+	//change gravity direction
+	if (prim)
+	{
+		//UE_LOG(LogTemp, Display, TEXT("Gravity X=%f,Y=%f,Z=%f"), Gravity.X, Gravity.Y, Gravity.Z);
 		prim->SetPhysicsLinearVelocity(Gravity, true);
+		//UE_LOG(LogTemp, Display, TEXT("PhysicsLinearVelocity X=%f,Y=%f,Z=%f"), prim->GetPhysicsLinearVelocity().X, prim->GetPhysicsLinearVelocity().Y, prim->GetPhysicsLinearVelocity().Z);
+	}
 	
 	CheckDead();
 }
@@ -51,26 +58,34 @@ void ABallPawn::Pitch() {
 	Speed = Speed * -1;
 	CurrentRotation.Pitch = FMath::Clamp(Speed, -10.0f, -1.0f);
 	if (!CurrentRotation.IsZero()) {
-		UE_LOG(LogTemp, Warning, TEXT("Pitch = %f"), GetActorRotation().Pitch);
+		UE_LOG(LogTemp, Display, TEXT("Pitch = %f"), GetActorRotation().Pitch);
 	}
 }
 void ABallPawn::ChangeFloor()
 {
 	if (CanJump)
 	{
+		//UE_LOG(LogTemp, Display, TEXT("CanJump = true"));
 		if (IsDown)
 		{
-			Gravity = FVector(0.0, 0.0, 5.0); 
-			CanJump = false;
+			Gravity = FVector(0.0, 0.0, 10.0); 
 			IsDown = false;
+			//UE_LOG(LogTemp, Display, TEXT("Space pressed IsDown true, Gravity.Z=%f"), Gravity.Z);
 		}
 		else
 		{
 			Gravity = FVector(0.0, 0.0, 0.0); 
-			CanJump = false;
 			IsDown = true;
+			//UE_LOG(LogTemp, Display, TEXT("Space pressed IsDown false, Gravity.Z=%f"), Gravity.Z);
 		}
+		
+		CanJump = false;
+
+		
+
 	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("CanJump = false"));
 }
 
 void ABallPawn::CheckDead()
@@ -78,7 +93,7 @@ void ABallPawn::CheckDead()
 	if (!GameInst)
 		return;
 	FVector CurrentLocation = GetActorLocation();
-	UE_LOG(LogTemp, Warning, TEXT("ViewSize.X=%f, ViewSize.Y=%f"), GameInst->GetMyViewSize().X, GameInst->GetMyViewSize().Y);
+	//UE_LOG(LogTemp, Warning, TEXT("ViewSize.X=%f, ViewSize.Y=%f"), GameInst->GetMyViewSize().X, GameInst->GetMyViewSize().Y);
 	if (CurrentLocation.Z < -255 || CurrentLocation.Z > 255)
 	{
 		GameInst->SetIsDead(true);
@@ -90,9 +105,11 @@ void ABallPawn::CheckDead()
 
 void ABallPawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Display, TEXT("OnHit function was called"));
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
 		CanJump = true;
+		UE_LOG(LogTemp, Display, TEXT("CanJump = true"));
 	}
 }
 

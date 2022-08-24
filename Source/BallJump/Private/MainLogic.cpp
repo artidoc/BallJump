@@ -1,7 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Kismet/GameplayStatics.h"
 #include "MainLogic.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AMainLogic::AMainLogic()
@@ -51,7 +52,7 @@ void AMainLogic::BeginPlay()
 				
 			GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainLogic::OnTimerFired, TimerRate, true);
 		}
-		FVector CloudLocation = FVector(0.0, 0.0, 340.0);
+		FVector CloudLocation = FVector(-200.0, 0.0, 340.0);
 		CloudBP = GetWorld()->SpawnActor(CloudSpawn, &CloudLocation, &Rotation);
 
 	}
@@ -93,12 +94,12 @@ void AMainLogic::CheckAndSpawnCloud()
 		FVector CloudLocation = CloudBP->GetActorLocation();
 
 		//spawn new blocks while the end of screen
-		if (CloudLocation.X + 150 < ViewSize.X)
+		if (CloudLocation.X < ViewSize.X)
 		{
 			FRotator Rotation = FRotator(0.0, 0.0, 0.0);
 			
-			//calculate of location of new cube block
-			double NewCloudLocation = CloudLocation.X + 150 + 150 + FMath::RandRange(400.0f, 600.0f);
+			//calculate of location of new cloud
+			double NewCloudLocation = CloudLocation.X + FMath::RandRange(600.0f, 1000.0f);
 
 			
 

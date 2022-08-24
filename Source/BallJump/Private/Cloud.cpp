@@ -58,7 +58,7 @@ void ACloud::CheckToDestroy()
     /// </Get screen height and width>
     
     
-    if (CurrentLocation.X < -(ViewSize.X / 2 + 150 + 100))
+    if (CurrentLocation.X < -(ViewSize.X))
     {
         Destroy();
     }

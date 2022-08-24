@@ -52,7 +52,7 @@ void ABlock::CheckToDestroy()
     UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
     FIntPoint ViewSize = Viewport->Viewport->GetSizeXY();
     
-    if (CurrentLocation.X<-((ViewSize.X/2 + ((ActorScale.X * 50)/2))+350))
+    if (CurrentLocation.X<-(ViewSize.X))
     {
         Destroy();
     }
