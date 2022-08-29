@@ -15,8 +15,8 @@ UCLASS()
 class BALLJUMP_API AMainLogic : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AMainLogic();
 
@@ -24,7 +24,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -38,26 +38,27 @@ public:
 	//	TSubclassOf<UMyGameInstance> GameInstance;
 
 	//UPROPERTY(EditAnywhere, Category = Spawn)
-		
+
 
 private:
-	AActor* DownBlock{nullptr};
+	AActor* DownBlock{ nullptr };
 	AActor* UpBlock{ nullptr };
 	AActor* CloudBP{ nullptr };
 	UMyGameInstance* GameInst{ nullptr };
-	
+
 	FIntPoint ViewSize;
-	int32 Speed{0};
+	int32 Speed{ 0 };
 	int32 Score{ 0 };
 	FTimerHandle TimerHandle;
 	float TimerRate = 3.0f;
-	
+
 	void ScreenSize();
-	void CheckAndSpawnBlock();
-	void CheckAndSpawnCloud();
-	void SpawnActors(TSubclassOf<ACloud> ActorSpawn, FVector& Location, FRotator& Rotation);
+    AActor* GenerateNewCloud(AActor* Cloud);
 	void SpeedCalc();
 	void ScoreCalc();
 	int32 SpeedClamp(int32 Speedtmp);
 	void OnTimerFired();
+
+
+	AActor* GenerateNewBlock(AActor* Block, bool up);
 };
