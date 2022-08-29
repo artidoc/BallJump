@@ -39,7 +39,7 @@ public:
 private:
 	FVector BallLocation;
 	FRotator CurrentRotation;
-	FVector Gravity;
+	FVector Gravity{ FVector(0.0f, 0.0f, 0.0f) };
 	UMyGameInstance* GameInst{ nullptr };
 	USphereComponent* prim{ nullptr };
 	bool CanJump{ false };
@@ -47,7 +47,7 @@ private:
 
 	
 	//void Movement();
-	void Pitch();
+	//void Pitch();
 	void ChangeFloor();
 	void CheckDead();
 	

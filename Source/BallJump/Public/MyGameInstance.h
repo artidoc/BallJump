@@ -26,17 +26,16 @@ public:
 	void SetSpeed(int32 SpeedTmp) { Speed = SpeedTmp; }
 	void SetIsDead(bool Dead) { IsDead = Dead; }
 	void SetViewSize(FIntPoint ViewSizeTmp) { ViewSize = ViewSizeTmp; }
-	
+
 	UPROPERTY(BlueprintReadOnly)
 	int32 Score {0};
 	UPROPERTY(BlueprintReadWrite)
-		int32 HighScore {0};
+	int32 HighScore {0};
 	UPROPERTY(BlueprintReadOnly)
 	int32 Speed {0};
 	UPROPERTY(BlueprintReadOnly)
 	bool IsDead{ false };
 	UPROPERTY(BlueprintReadOnly)
 	FIntPoint ViewSize{1920,1080};
-	
-	
+
 };

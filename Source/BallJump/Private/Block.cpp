@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Block.h"
+#include <cassert>
 
 // Sets default values
 ABlock::ABlock()
@@ -32,27 +33,24 @@ void ABlock::Tick(float DeltaTime)
 
 void ABlock::HandleMovement(double DeltaTime)
 {
-        FVector CurrentLocation = GetActorLocation();
-        if (GetWorld())
-        {
-            if(GameInst)
-                CurrentLocation.X = CurrentLocation.X - 20 * DeltaTime * GameInst->GetMySpeed();
-            else
-                CurrentLocation.X = CurrentLocation.X - 20 * DeltaTime * 5;
-            SetActorLocation(CurrentLocation);
+    check(GameInst);
 
-
-        }
+    //block movement every frame
+    FVector CurrentLocation = GetActorLocation();
+    CurrentLocation.X -= 20 * DeltaTime * (static_cast<float>(GameInst->GetMySpeed()));
+    SetActorLocation(CurrentLocation);
 }
 
 void ABlock::CheckToDestroy()
 {
-    ActorScale = this->GetActorScale3D();
+    // Get screen size
+    check(GameInst);
     FVector CurrentLocation = GetActorLocation();
-    UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
-    FIntPoint ViewSize = Viewport->Viewport->GetSizeXY();
-    
-    if (CurrentLocation.X<-(ViewSize.X))
+    FVector CurrentScale = GetActorScale();
+    FIntPoint ViewSize = GameInst->GetMyViewSize();
+    //if block out of the screen - destroy
+    //
+    if ((CurrentLocation.X + (CurrentScale.X * 50.0f)) < -(ViewSize.X*3))
     {
         Destroy();
     }
