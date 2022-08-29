@@ -85,9 +85,17 @@ void ABallPawn::CheckDead()
 
 void ABallPawn::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+<<<<<<< HEAD
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
 	{
 		CanJump = true;
+=======
+	//UE_LOG(LogTemp, Display, TEXT("OnHit function was called"));
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
+	{
+		CanJump = true;
+		//UE_LOG(LogTemp, Display, TEXT("CanJump = true"));
+>>>>>>> origin/main
 	}
 }
 
