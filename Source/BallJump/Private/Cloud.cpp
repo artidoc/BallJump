@@ -19,7 +19,6 @@ ACloud::ACloud()
 void ACloud::BeginPlay()
 {
 	Super::BeginPlay();
-	InitialLocation = GetActorLocation();
     GameInst = Cast<UMyGameInstance>(GetGameInstance());
 }
 
@@ -27,35 +26,10 @@ void ACloud::BeginPlay()
 void ACloud::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+    
+    check(GameInst);
     //cloud movement from right to left
-	HandleMovement(DeltaTime);
-    
-    
-    //check if cloud is going out from the screen and then delete it
-    CheckToDestroy();
-}
-
-void ACloud::HandleMovement(double DeltaTime)
-{
-    check(GameInst);
-    FVector CurrentLocation = GetActorLocation();
-    CurrentLocation.X -= 20 * DeltaTime * (static_cast<float>(GameInst->GetMySpeed())/2.0f);
-    SetActorLocation(CurrentLocation);
-
-
-}
-
-void ACloud::CheckToDestroy()
-{
-    // Get screen size
-    check(GameInst);
-    FVector CurrentLocation = GetActorLocation();
-    FIntPoint ViewSize = GameInst->GetMyViewSize();
-
-    // if block out of the screen - destroy
-    if (CurrentLocation.X < -(ViewSize.X*3))
-    {
-        Destroy();
-    }
+	GameInst->HandleMovement(this,DeltaTime,true);
+    // destroy object if it is out of the screen
+    GameInst->CheckToDestroy(this);
 }

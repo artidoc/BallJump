@@ -38,4 +38,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FIntPoint ViewSize{1920,1080};
 
+	void CheckToDestroy(AActor* Objected);
+    void HandleMovement(AActor* Objected, double DeltaTime, bool cloud);
 };

@@ -32,13 +32,5 @@ public:
 		UPaperSpriteComponent* Sprite;
 
 private:
-	
-	FVector InitialLocation;
-	double CloudSpeed;
 	UMyGameInstance* GameInst{ nullptr };
-
-	void HandleMovement(double DeltaTime);
-	void CheckToDestroy();
-
-	
 };

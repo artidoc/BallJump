@@ -25,35 +25,9 @@ void ABlock::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
     
-    
-    HandleMovement(DeltaTime);
-    CheckToDestroy();
-    
-}
-
-void ABlock::HandleMovement(double DeltaTime)
-{
     check(GameInst);
-
-    //block movement every frame
-    FVector CurrentLocation = GetActorLocation();
-    CurrentLocation.X -= 20 * DeltaTime * (static_cast<float>(GameInst->GetMySpeed()));
-    SetActorLocation(CurrentLocation);
+    GameInst->HandleMovement(this, DeltaTime, false);
+    //destroy object if it is out of the screen
+    GameInst->CheckToDestroy(this);
+    
 }
-
-void ABlock::CheckToDestroy()
-{
-    // Get screen size
-    check(GameInst);
-    FVector CurrentLocation = GetActorLocation();
-    FVector CurrentScale = GetActorScale();
-    FIntPoint ViewSize = GameInst->GetMyViewSize();
-    //if block out of the screen - destroy
-    //
-    if ((CurrentLocation.X + (CurrentScale.X * 50.0f)) < -(ViewSize.X*3))
-    {
-        Destroy();
-    }
-}
-
-

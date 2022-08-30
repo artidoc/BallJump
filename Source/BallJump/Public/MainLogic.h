@@ -58,6 +58,7 @@ private:
 	void ScoreCalc();
 	int32 SpeedClamp(int32 Speedtmp);
 	void OnTimerFired();
+    float NewScaleX();
 
 
 	AActor* GenerateNewBlock(AActor* Block, bool up);

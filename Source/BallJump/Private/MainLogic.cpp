@@ -33,7 +33,7 @@ void AMainLogic::BeginPlay()
     if (UGameplayStatics::GetCurrentLevelName(this, true) == "GameMap")
     {
         FVector LocationDown = FVector(-450.0f, 0.0f, -250.0f);
-        FVector LocationUp = FVector(350.0f, 0.0f, 250.0f);
+        FVector LocationUp = FVector(300.0f, 0.0f, 250.0f);
         FTransform BlockTransform;
         //Transformation for down block
         BlockTransform.SetRotation(FQuat(Rotation));
@@ -98,7 +98,7 @@ AActor* AMainLogic::GenerateNewCloud(AActor* Cloud)
     {
         // Set new location
         FVector CLoudVectorLocation = FVector(
-            CloudLocation.X + FMath::RandRange(600.0f, 1000.0f)  // calculate location of new cloud
+            CloudLocation.X + FMath::RandRange(1000.0f, 1500.0f)  // calculate location of new cloud
             ,0.0f
             , FMath::RandRange(-(ViewSize.Y / 2.0f), ViewSize.Y / 2.0f));
 
@@ -118,8 +118,9 @@ AActor* AMainLogic::GenerateNewBlock(AActor* Block, bool up)
     if ((BlockLocation.X + (BlockScale.X * 25.0f)) < static_cast<float>(ViewSize.X))
     {
         FTransform BlockTransform;
+        float ScaleX = NewScaleX();
         BlockTransform.SetRotation(FQuat(FRotator(0.0f, 0.0f, 0.0f)));
-        BlockTransform.SetScale3D(FVector(10.0f, 1.0f, 0.5f));
+        BlockTransform.SetScale3D(FVector(ScaleX, 1.0f, 0.5f));
 
         // calculate of location of new cube block
         float TempLocation = BlockLocation.X + (BlockScale.X * 25.0f) + (BlockTransform.GetScale3D().X * 25.0f) + 1000.0f;
@@ -158,9 +159,16 @@ int32 AMainLogic::SpeedClamp(int32 Speedtmp)
 
 void AMainLogic::OnTimerFired()
 {
-    Speed++;
+    ++Speed;
+    Speed = FMath::Clamp(Speed, 0, 50);
     check(GameInst);
     GameInst->SetSpeed(Speed);
 
     ScreenSize();
+}
+
+float AMainLogic::NewScaleX()
+{
+
+    return 10.0f * (100.0f - Speed * 2.0f) / 100.0f;
 }

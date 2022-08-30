@@ -26,16 +26,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	UPROPERTY(EditAnywhere, Category = Spawn)
-		AActor* MainLogicBP{nullptr};
 
 private:
-	FVector InitialLocation;
-	FVector ActorScale;
 	UMyGameInstance* GameInst{ nullptr };
-
-
-	void HandleMovement(double DeltaTime);
-	void CheckToDestroy();
-
 };
