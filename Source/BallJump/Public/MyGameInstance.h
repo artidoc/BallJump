@@ -18,12 +18,12 @@ public:
 	
 	int32 GetMyScore(){ return Score; }
 	int32 GetMyHighScore() { return HighScore; }
-	int32 GetMySpeed(){ return FMath::Clamp(Speed, 0, 50); }
+	float GetMySpeed(){ return FMath::Clamp(Speed, 0.0f, 50.0f); }
 	bool GetMyIsDead() { return IsDead; }
 	FIntPoint GetMyViewSize() { return ViewSize; }
 	void SetScore(int32 ScoreTmp) {Score = ScoreTmp;}
 	void SetHighScore(int32 ScoreTmp) { HighScore = ScoreTmp; }
-	void SetSpeed(int32 SpeedTmp) { Speed = SpeedTmp; }
+	void SetSpeed(float SpeedTmp) { Speed = SpeedTmp; }
 	void SetIsDead(bool Dead) { IsDead = Dead; }
 	void SetViewSize(FIntPoint ViewSizeTmp) { ViewSize = ViewSizeTmp; }
 
@@ -32,12 +32,12 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	int32 HighScore {0};
 	UPROPERTY(BlueprintReadOnly)
-	int32 Speed {0};
+	float Speed {0};
 	UPROPERTY(BlueprintReadOnly)
 	bool IsDead{ false };
 	UPROPERTY(BlueprintReadOnly)
 	FIntPoint ViewSize{1920,1080};
 
-	void CheckToDestroy(AActor* Objected);
+	void CheckIfOutOfTheScreenAndDestroy(AActor* Objected);
     void HandleMovement(AActor* Objected, double DeltaTime, bool cloud);
 };

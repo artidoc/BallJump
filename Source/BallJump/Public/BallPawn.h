@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,21 +11,14 @@ class BALLJUMP_API ABallPawn : public APawn
 {
 	GENERATED_BODY()
 
-
-
 public:
-	// Sets default values for this pawn's properties
 	ABallPawn();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(VisibleAnywhere)
@@ -37,18 +28,17 @@ public:
 		float Speed = 5.0f;
 
 private:
+    bool CanJump{false};
+    bool IsDown{true};
 	FVector BallLocation;
 	FRotator CurrentRotation;
 	FVector Gravity{ FVector(0.0f, 0.0f, 0.0f) };
 	UMyGameInstance* GameInst{ nullptr };
 	USphereComponent* prim{ nullptr };
-	bool CanJump{ false };
-	bool IsDown{ true };
-
 	
-	//void Movement();
-	//void Pitch();
-	void ChangeFloor();
+
+	void ChangeFloor(float num,bool Down);
+    void ActiveButton();
 	void CheckDead();
 	
 	UFUNCTION()

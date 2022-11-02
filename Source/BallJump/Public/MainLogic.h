@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -17,49 +15,38 @@ class BALLJUMP_API AMainLogic : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AMainLogic();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, Category = Spawn)
 		TSubclassOf<ABlock> BlockSpawn;
-
 	UPROPERTY(EditAnywhere, Category = Spawn)
 		TSubclassOf<ACloud> CloudSpawn;
 
-	//UPROPERTY(EditAnywhere, Category = Spawn)
-	//	TSubclassOf<UMyGameInstance> GameInstance;
-
-	//UPROPERTY(EditAnywhere, Category = Spawn)
-
-
 private:
-	AActor* DownBlock{ nullptr };
-	AActor* UpBlock{ nullptr };
-	AActor* CloudBP{ nullptr };
+    float TimerRate = 0.2f;
+    float Speed{0};
+	AActor* downBlockPointer{ nullptr };
+	AActor* upBlockPointer{ nullptr };
+	AActor* cloudPointer{ nullptr };
 	UMyGameInstance* GameInst{ nullptr };
-
 	FIntPoint ViewSize;
-	int32 Speed{ 0 };
-	int32 Score{ 0 };
 	FTimerHandle TimerHandle;
-	float TimerRate = 3.0f;
-
-	void ScreenSize();
-    AActor* GenerateNewCloud(AActor* Cloud);
+	
+	void ChangeScreenSize();
+    void GenerateOnStartCloud();
+    void GenerateOnStartBlock();
+    void GenerateNewCloud();
+    void GenerateNewBlock(AActor*& Block, bool up);
+    float NewScaleX();
+    void SpeedOnStart();
 	void SpeedCalc();
 	void ScoreCalc();
-	int32 SpeedClamp(int32 Speedtmp);
+	float SpeedClamp(float Speedtmp);
 	void OnTimerFired();
-    float NewScaleX();
-
-
-	AActor* GenerateNewBlock(AActor* Block, bool up);
 };

@@ -1,81 +1,45 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "MainLogic.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 AMainLogic::AMainLogic()
 {
-    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void AMainLogic::BeginPlay()
 {
     Super::BeginPlay();
 
     GameInst = Cast<UMyGameInstance>(GetGameInstance());
-
-    // get screen size
-    ScreenSize();
-
     check(GameInst);
+    ChangeScreenSize();
     GameInst->SetIsDead(false);
     GameInst->SetSpeed(0);
-
     check(GetWorld());
-
-    // spawn 3 new blocks - up, down and cloud
-    FRotator Rotation = FRotator(0.0, 0.0, 0.0);
-
-    // if level GameMap - spawn up and down blocks
+    GenerateOnStartCloud();
     if (UGameplayStatics::GetCurrentLevelName(this, true) == "GameMap")
-    {
-        FVector LocationDown = FVector(-450.0f, 0.0f, -250.0f);
-        FVector LocationUp = FVector(300.0f, 0.0f, 250.0f);
-        FTransform BlockTransform;
-        //Transformation for down block
-        BlockTransform.SetRotation(FQuat(Rotation));
-        BlockTransform.SetScale3D(FVector(10.0f, 1.0f, 0.5f));
-        BlockTransform.SetLocation(LocationDown);
-        DownBlock = GetWorld()->SpawnActor(BlockSpawn, &BlockTransform);
-
-        //change location for up block
-        BlockTransform.SetLocation(LocationUp);
-        UpBlock = GetWorld()->SpawnActor(BlockSpawn, &BlockTransform);
-
-        GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainLogic::OnTimerFired, TimerRate, true);
-    }
-    FVector CloudLocation = FVector(-200.0f, 0.0f, 340.0f);
-    CloudBP = GetWorld()->SpawnActor(CloudSpawn, &CloudLocation, &Rotation);
+        GenerateOnStartBlock();
 }
 
-// Called every frame
 void AMainLogic::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    CloudBP = GenerateNewCloud(CloudBP);
+    ChangeScreenSize();
+
+    GenerateNewCloud();
     if (UGameplayStatics::GetCurrentLevelName(this, true) == "GameMap")
     {
-        /// Spawn new blocks
-        check(DownBlock && UpBlock);
-        DownBlock = GenerateNewBlock(DownBlock, false);
-        UpBlock = GenerateNewBlock(UpBlock, true);
-        /// End
-        int32 TimeSec = static_cast<int32>(GetWorld()->GetTimeSeconds());
-        if (TimeSec > 0 && TimeSec <= 5) SpeedCalc();
-        ScoreCalc();
+        check(downBlockPointer && upBlockPointer);
+        GenerateNewBlock(downBlockPointer, false);
+        GenerateNewBlock(upBlockPointer, true);
+        SpeedOnStart();
     }
     else
-    {
-        check(GameInst);
         GameInst->SetSpeed(7);
-    }
 }
 
-void AMainLogic::ScreenSize()
+void AMainLogic::ChangeScreenSize()
 {
     check(GameInst);
     UGameViewportClient* Viewport = GetWorld()->GetGameViewport();
@@ -87,30 +51,49 @@ void AMainLogic::ScreenSize()
     }
 }
 
-AActor* AMainLogic::GenerateNewCloud(AActor* Cloud)
+void AMainLogic::GenerateOnStartCloud()
 {
-    check(Cloud);
-    // get location and scale of spawned blocks
-    FVector CloudLocation = Cloud->GetActorLocation();
+    FRotator Rotation = FRotator(0.0, 0.0, 0.0);
+    FVector CloudLocation = FVector(-200.0f, 0.0f, 340.0f);
+    cloudPointer = GetWorld()->SpawnActor(CloudSpawn, &CloudLocation, &Rotation);
+}
 
-    // spawn new blocks while the end of screen
+void AMainLogic::GenerateOnStartBlock()
+{
+    FRotator Rotation = FRotator(0.0, 0.0, 0.0);
+    FVector LocationDown = FVector(-450.0f, 0.0f, -250.0f);
+    FVector LocationUp = FVector(300.0f, 0.0f, 250.0f);
+    FTransform BlockTransform;
+
+    BlockTransform.SetRotation(FQuat(Rotation));
+    BlockTransform.SetScale3D(FVector(10.0f, 1.0f, 0.5f));
+    BlockTransform.SetLocation(LocationDown);
+    downBlockPointer = GetWorld()->SpawnActor(BlockSpawn, &BlockTransform);
+    BlockTransform.SetLocation(LocationUp);
+    upBlockPointer = GetWorld()->SpawnActor(BlockSpawn, &BlockTransform);
+
+    GetWorldTimerManager().SetTimer(TimerHandle, this, &AMainLogic::OnTimerFired, TimerRate, true);
+}
+
+void AMainLogic::GenerateNewCloud()
+{
+    check(cloudPointer);
+    FVector CloudLocation = cloudPointer->GetActorLocation();
+
     if (CloudLocation.X < ViewSize.X)
     {
-        // Set new location
         FVector CLoudVectorLocation = FVector(
-            CloudLocation.X + FMath::RandRange(1000.0f, 1500.0f)  // calculate location of new cloud
-            ,0.0f
+            CloudLocation.X + FMath::RandRange(1000.0f, 1500.0f)
+            , 0.0f
             , FMath::RandRange(-(ViewSize.Y / 2.0f), ViewSize.Y / 2.0f));
 
         FRotator Rotation = FRotator(0.0f, 0.0f, 0.0f);
-        // spawn new blocks
-        return GetWorld()->SpawnActor(CloudSpawn, &CLoudVectorLocation, &Rotation);
+        cloudPointer = GetWorld()->SpawnActor(CloudSpawn, &CLoudVectorLocation, &Rotation);
     }
-    return Cloud;
 }
-AActor* AMainLogic::GenerateNewBlock(AActor* Block, bool up)
+
+void AMainLogic::GenerateNewBlock(AActor*& Block, bool up)
 {
-    // set rotation and scale of new block
     FVector BlockLocation = Block->GetActorLocation();
     FVector BlockScale = Block->GetActorScale();
 
@@ -122,53 +105,52 @@ AActor* AMainLogic::GenerateNewBlock(AActor* Block, bool up)
         BlockTransform.SetRotation(FQuat(FRotator(0.0f, 0.0f, 0.0f)));
         BlockTransform.SetScale3D(FVector(ScaleX, 1.0f, 0.5f));
 
-        // calculate of location of new cube block
         float TempLocation = BlockLocation.X + (BlockScale.X * 25.0f) + (BlockTransform.GetScale3D().X * 25.0f) + 1000.0f;
 
-        // Set new location
         FVector NewLocation = FVector(TempLocation, 0.0f, (up ? 250.0f : -250.0f));
         BlockTransform.SetLocation(NewLocation);
         
-        //return ptr for new spawned object
-        return GetWorld()->SpawnActor(BlockSpawn, &BlockTransform);
+        Block = GetWorld()->SpawnActor(BlockSpawn, &BlockTransform);
     }
-    return Block;
+}
+
+float AMainLogic::NewScaleX()
+{
+    return 10.0f * (100.0f - Speed * 2.0f) / 100.0f;
+}
+
+void AMainLogic::SpeedOnStart()
+{
+    int32 timeFromStartInSec = static_cast<int32>(GetWorld()->GetTimeSeconds());
+    if (timeFromStartInSec > 0 && timeFromStartInSec <= 5) SpeedCalc();
+    ScoreCalc();
 }
 
 void AMainLogic::SpeedCalc()
 {
     Speed++;
     Speed = SpeedClamp(Speed);
-    check(GameInst);
     GameInst->SetSpeed(Speed);
 }
 
 void AMainLogic::ScoreCalc()
 {
+    int32 Score = GameInst->GetMyScore();
     Score++;
-    Score = SpeedClamp(Score);
-    check(GameInst);
+    Score = static_cast<int32>(SpeedClamp(Score));
     GameInst->SetScore(Score);
 }
 
-int32 AMainLogic::SpeedClamp(int32 Speedtmp)
+float AMainLogic::SpeedClamp(float Speedtmp)
 {
-    int32 TimeSec = static_cast<int32>(GetWorld()->GetTimeSeconds());
-    return FMath::Clamp(Speedtmp, 0, TimeSec);
+    float TimeSec = GetWorld()->GetTimeSeconds();
+    return FMath::Clamp(Speedtmp, 0.0f, TimeSec);
 }
 
 void AMainLogic::OnTimerFired()
 {
-    ++Speed;
-    Speed = FMath::Clamp(Speed, 0, 50);
+    Speed+=0.05f;
+    Speed = FMath::Clamp(Speed, 0.0f, 50.0f);
     check(GameInst);
     GameInst->SetSpeed(Speed);
-
-    ScreenSize();
-}
-
-float AMainLogic::NewScaleX()
-{
-
-    return 10.0f * (100.0f - Speed * 2.0f) / 100.0f;
 }
